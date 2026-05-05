@@ -1,0 +1,14 @@
+---
+description: Database and ORM conventions. Applied when editing database files.
+globs: src/db/**,src/lib/db*,drizzle/**,prisma/**
+---
+
+# Database
+
+- Use Drizzle ORM (default) or Prisma if the project chose document-based.
+- Schema changes must include a migration: `pnpm drizzle-kit generate`.
+- Never modify the database directly — always go through the ORM.
+- Add indexes for columns used in WHERE clauses and JOIN conditions.
+- Use transactions for operations that modify multiple tables.
+- Document new tables and relationships in `memory.md`.
+- Add new env vars (e.g. `DATABASE_URL`) to the env vars table in `memory.md`.

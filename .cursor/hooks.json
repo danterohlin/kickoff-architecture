@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "hooks": {
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/typecheck.sh",
+        "matcher": "Write",
+        "timeout": 30
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": ".cursor/hooks/block-main-push.sh",
+        "matcher": "git push",
+        "failClosed": true
+      }
+    ],
+    "stop": [
+      {
+        "type": "prompt",
+        "prompt": "Before this session ends, check if plan.md exists and whether you made progress on any task. If you did work but haven't updated plan.md yet, do it now: mark your task as [~] (in progress) or [x] (done), and append a note describing where you left off and what's remaining. Also update memory.md if you made architectural decisions or discovered something important about the codebase. This ensures the next session can pick up seamlessly. Here is the hook input: $ARGUMENTS",
+        "timeout": 30,
+        "loop_limit": 1
+      }
+    ]
+  }
+}

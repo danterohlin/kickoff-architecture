@@ -1,0 +1,26 @@
+---
+description: Testing conventions. Applied when editing test files.
+globs: e2e/**,**/*.test.*,**/*.spec.*,vitest*,playwright*
+---
+
+# Tests
+
+## E2E tests (Playwright)
+
+- Test files go in `e2e/` with `.spec.ts` extension.
+- Test real user flows, not implementation details.
+- Use role-based locators (`getByRole`, `getByLabel`) over CSS selectors.
+- Each test should be independent — no shared state between tests.
+- Add `data-testid` attributes sparingly, only when no semantic locator works.
+
+## Unit tests (Vitest)
+
+- Colocate with source: `foo.ts` → `foo.test.ts`, or use `__tests__/`.
+- Test business logic and utilities, not UI rendering (use Playwright for that).
+- Mock external dependencies (API calls, database) — don't hit real services.
+- Test edge cases: empty inputs, null values, error paths.
+
+## General
+
+- All tests must pass before pushing. The pre-push hook enforces this.
+- When fixing a bug, write a test that reproduces it first, then fix.

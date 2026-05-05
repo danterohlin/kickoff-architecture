@@ -1,0 +1,16 @@
+---
+description: UI component conventions. Applied when editing component files.
+globs: src/components/**,src/app/**/*.tsx,app/**/*.tsx
+---
+
+# UI Components
+
+- Use shadcn/ui components as the foundation. Check if a component exists
+  in shadcn before building custom.
+- Follow the project's design defaults from `memory.md` (minimal, functional,
+  warmer tones, intentional color).
+- Use Tailwind CSS utility classes. No inline styles, no CSS modules.
+- Components must be responsive — mobile-first, then scale up.
+- Use semantic HTML elements (`nav`, `main`, `section`, `article`).
+- Add accessible labels and ARIA attributes where needed.
+- Keep components focused — one responsibility per component.

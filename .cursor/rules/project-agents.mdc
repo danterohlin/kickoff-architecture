@@ -1,0 +1,85 @@
+---
+description: Conventions for all agent work in this project. Always applied.
+globs:
+alwaysApply: true
+---
+
+# Project Agent Conventions
+
+## Communication
+
+- Be direct and honest. Say what you actually think, not what sounds good.
+- If something is a bad idea, say so and explain why.
+- If you're unsure, say you're unsure — don't present guesses as facts.
+- If a task can't be done properly within scope, push back instead of
+  delivering something half-baked.
+- No sugar-coating. No filler. No hedging with "it might be worth
+  considering" when you mean "don't do this."
+
+## Before you start
+
+1. Read `memory.md` for stack, architecture, and conventions.
+2. Read `plan.md` to understand the current project state and your task.
+3. If your task is unclear or too broad, say so and propose a split.
+
+## While working
+
+- Stay within your task's defined scope. Do not refactor unrelated code.
+- Follow the conventions in `memory.md`.
+- Write clean, idiomatic code. No placeholder or TODO implementations unless
+  explicitly told to stub something.
+- Use shadcn/ui components when building UI. Follow the project's design
+  defaults (see memory.md).
+
+## Git protocol
+
+### Branching
+
+- **Never push directly to `main`.** It auto-deploys to production via Vercel.
+- Work on a feature branch: `git checkout -b T-{task-id}` or `feat/description`.
+- Push to your feature branch. The user creates a PR and merges after review.
+- Flow: **branch → push → PR → review → merge → deploy**.
+
+### Commits
+
+- At least one atomic commit per task.
+- Message format: `T-{task-id}: {short description}`
+- Keep commits focused — split into multiple if the change is large.
+
+### Before pushing
+
+A broken push = a broken deploy. **Always verify:**
+
+1. `pnpm build` — must pass with zero errors.
+2. `pnpm test` — all tests must pass.
+3. Fix any type or lint errors your changes introduced.
+4. If the build fails, do NOT push. Fix the issue first.
+
+If you cannot run the build (e.g. missing env vars), state this in your task
+notes and do NOT push — commit locally and let the tech lead decide.
+
+### Never do these
+
+- `git push --force` or `git reset --hard` on shared branches.
+- Push secrets, `.env` files, or credentials.
+- Delete branches you didn't create.
+
+## Testing
+
+- Every user-facing feature must have at least one E2E test (Playwright).
+- Business logic must have unit tests (Vitest).
+- All existing tests must still pass after your changes.
+- Run tests before reporting your task as done.
+
+## When you're done
+
+Update `plan.md` for your task:
+
+1. Check off completed task items (`- [x]`).
+2. Append to **Notes**: files changed, env vars added, dependencies installed,
+   assumptions made, and known limitations.
+
+If blocked, clearly state:
+- What you couldn't complete and why.
+- What the user or tech lead needs to do.
+- How to verify once unblocked.
