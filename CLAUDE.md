@@ -66,6 +66,9 @@ npx playwright install
 
 ## Available Skills (in `handy-skills/`)
 
+When you consult a skill file, mention it in your response so the user knows
+what guidance you followed. The user can also ask you to use specific skills.
+
 Read these when relevant to the project:
 - `adding-auth` — OAuth, sessions, protected routes
 - `adding-e2e-tests` — Playwright setup with page objects
