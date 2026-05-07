@@ -1,0 +1,218 @@
+name: Sync to Techtify Dashboard
+
+on:
+  push:
+    branches: ["**"]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    if: ${{ vars.DASHBOARD_API_URL != '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Parse project data and sync
+        env:
+          DASHBOARD_API_URL: ${{ vars.DASHBOARD_API_URL }}
+          DASHBOARD_API_KEY: ${{ secrets.DASHBOARD_API_KEY }}
+        run: |
+          set -euo pipefail
+
+          REPO_URL="https://github.com/${{ github.repository }}"
+          BRANCH="${GITHUB_REF#refs/heads/}"
+          COMMIT_HASH="${{ github.sha }}"
+          COMMIT_MESSAGE=$(git log -1 --format='%s')
+          COMMIT_DATE=$(git log -1 --format='%aI')
+          SYNCED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          CHANNEL_ID="github-action"
+
+          # Parse plan.md
+          PLAN_COMPLETED=0
+          PLAN_TOTAL=0
+          PLAN_PHASES="[]"
+          if [ -f plan.md ]; then
+            PLAN_COMPLETED=$(grep -c '\- \[x\]' plan.md 2>/dev/null || echo 0)
+            PLAN_TOTAL_UNCHECKED=$(grep -c '\- \[ \]' plan.md 2>/dev/null || echo 0)
+            PLAN_TOTAL=$((PLAN_COMPLETED + PLAN_TOTAL_UNCHECKED))
+
+            # Parse phases and tasks into JSON
+            PLAN_PHASES=$(python3 -c "
+          import re, json, sys
+
+          phases = []
+          current = None
+
+          with open('plan.md') as f:
+              for line in f:
+                  heading = re.match(r'^#{2,3}\s+(.+)', line)
+                  if heading:
+                      name = heading.group(1).strip()
+                      if re.search(r'phase|bootstrap|core|foundation|setup|deploy|polish', name, re.I) or re.match(r'Phase\s', name, re.I):
+                          current = {'name': name, 'tasks': []}
+                          phases.append(current)
+                      continue
+                  task = re.match(r'^- \[([ xX])\]\s+(.+)', line)
+                  if task and current is not None:
+                      done = task.group(1).lower() == 'x'
+                      text = task.group(2).strip()
+                      id_match = re.search(r'\x60?(T-[\d.]+)\x60?', text)
+                      tid = id_match.group(1) if id_match else f'task-{len(current[\"tasks\"])+1}'
+                      title = re.sub(r'\x60?T-[\d.]+\x60?[:\s]*', '', text).strip() if id_match else text
+                      current['tasks'].append({'id': tid, 'title': title or text, 'done': done})
+
+          if not phases and any(re.search(r'- \[[ xX]\]', l) for l in open('plan.md')):
+              fallback = {'name': 'Tasks', 'tasks': []}
+              with open('plan.md') as f:
+                  for line in f:
+                      task = re.match(r'^- \[([ xX])\]\s+(.+)', line)
+                      if task:
+                          done = task.group(1).lower() == 'x'
+                          text = task.group(2).strip()
+                          id_match = re.search(r'\x60?(T-[\d.]+)\x60?', text)
+                          tid = id_match.group(1) if id_match else f'task-{len(fallback[\"tasks\"])+1}'
+                          title = re.sub(r'\x60?T-[\d.]+\x60?[:\s]*', '', text).strip() if id_match else text
+                          fallback['tasks'].append({'id': tid, 'title': title or text, 'done': done})
+              if fallback['tasks']:
+                  phases.append(fallback)
+
+          print(json.dumps(phases))
+          " 2>/dev/null || echo "[]")
+          fi
+
+          # Find current task (first unchecked)
+          CURRENT_TASK="null"
+          if [ "$PLAN_PHASES" != "[]" ]; then
+            CURRENT_TASK=$(python3 -c "
+          import json
+          phases = json.loads('''$PLAN_PHASES''')
+          for p in phases:
+              for t in p['tasks']:
+                  if not t['done']:
+                      print(json.dumps({'id': t['id'], 'title': t['title']}))
+                      exit()
+          print('null')
+          " 2>/dev/null || echo "null")
+          fi
+
+          # Parse decisions from memory.md
+          DECISIONS="[]"
+          if [ -f memory.md ]; then
+            DECISIONS=$(python3 -c "
+          import json
+          decisions = []
+          in_section = False
+          with open('memory.md') as f:
+              for line in f:
+                  if '## Decisions' in line or '## Architecture Decisions' in line:
+                      in_section = True
+                      continue
+                  if in_section and line.startswith('## '):
+                      break
+                  if in_section and line.strip().startswith(('-', '*')):
+                      decisions.append(line.strip().lstrip('-* ').strip())
+          print(json.dumps(decisions[-10:]))
+          " 2>/dev/null || echo "[]")
+          fi
+
+          # Parse blockers from devlog.md
+          BLOCKERS="[]"
+          if [ -f devlog.md ]; then
+            BLOCKERS=$(python3 -c "
+          import json, re
+          blockers = []
+          with open('devlog.md') as f:
+              content = f.read()
+          for section in content.split('**Watch out**')[1:]:
+              for line in section.split('\n'):
+                  line = line.strip()
+                  if not line or line.startswith('##') or line.startswith('**'):
+                      break
+                  if line.startswith(('-', '*')):
+                      blockers.append(line.lstrip('-* ').strip())
+          print(json.dumps(blockers))
+          " 2>/dev/null || echo "[]")
+          fi
+
+          # Parse devlog latest entry
+          DEVLOG_LATEST="null"
+          if [ -f devlog.md ]; then
+            DEVLOG_LATEST=$(python3 -c "
+          import json
+          with open('devlog.md') as f:
+              content = f.read()
+          entries = [e for e in content.split('## ') if e.strip()]
+          if entries:
+              print(json.dumps('## ' + entries[-1].strip()))
+          else:
+              print('null')
+          " 2>/dev/null || echo "null")
+          fi
+
+          # Parse session summary from devlog latest
+          SESSION_SUMMARY="null"
+          if [ "$DEVLOG_LATEST" != "null" ]; then
+            SESSION_SUMMARY="$DEVLOG_LATEST"
+          fi
+
+          # Files changed in this commit
+          FILES_CHANGED=$(git diff --name-only HEAD~1 2>/dev/null | head -20 | python3 -c "import json,sys; print(json.dumps([l.strip() for l in sys.stdin if l.strip()]))" 2>/dev/null || echo "[]")
+
+          # Build payload
+          PAYLOAD=$(python3 -c "
+          import json
+          payload = {
+              'channelId': '$CHANNEL_ID',
+              'repoUrl': '$REPO_URL',
+              'branch': '$BRANCH',
+              'latestCommit': {
+                  'hash': '$COMMIT_HASH',
+                  'message': $(python3 -c "import json; print(json.dumps('''$COMMIT_MESSAGE'''.strip()))"),
+                  'date': '$COMMIT_DATE'
+              },
+              'planProgress': {'completed': $PLAN_COMPLETED, 'total': $PLAN_TOTAL} if $PLAN_TOTAL > 0 else None,
+              'planPhases': json.loads('''$PLAN_PHASES'''),
+              'currentTask': json.loads('''$CURRENT_TASK'''),
+              'decisions': json.loads('''$DECISIONS'''),
+              'blockers': json.loads('''$BLOCKERS'''),
+              'devlogLatest': json.loads('''$DEVLOG_LATEST''') if '''$DEVLOG_LATEST''' != 'null' else None,
+              'sessionSummary': json.loads('''$SESSION_SUMMARY''') if '''$SESSION_SUMMARY''' != 'null' else None,
+              'testResults': None,
+              'syncedAt': '$SYNCED_AT'
+          }
+          print(json.dumps(payload, indent=2))
+          ")
+
+          echo "Syncing to dashboard..."
+          echo "$PAYLOAD" | head -5
+
+          HTTP_CODE=$(curl -s -o /tmp/sync-response.txt -w "%{http_code}" \
+            -X POST "${DASHBOARD_API_URL}/api/sync" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${DASHBOARD_API_KEY}" \
+            -d "$PAYLOAD")
+
+          echo "Dashboard API response: $HTTP_CODE"
+          cat /tmp/sync-response.txt
+          echo ""
+
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "::warning::Dashboard sync returned $HTTP_CODE"
+          fi
+
+          # Also send heartbeat to update lastActive
+          curl -s -X POST "${DASHBOARD_API_URL}/api/sync/heartbeat" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${DASHBOARD_API_KEY}" \
+            -d "{
+              \"channelId\": \"$CHANNEL_ID\",
+              \"repoUrl\": \"$REPO_URL\",
+              \"branch\": \"$BRANCH\",
+              \"status\": \"active\",
+              \"currentTask\": $(echo "$CURRENT_TASK" | python3 -c "import json,sys; d=json.load(sys.stdin); print(json.dumps(d['title'] if d else None))"),
+              \"costUsd\": 0,
+              \"timestamp\": \"$SYNCED_AT\"
+            }" > /dev/null 2>&1 || true
+
+          echo "Sync complete."
