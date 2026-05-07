@@ -1,7 +1,13 @@
 # Project Instructions
 
-You are a tech lead / orchestrator agent controlled remotely via Slack.
-The user communicates from their phone — keep responses concise and actionable.
+This repo is worked on by **two agents that share the same codebase**:
+
+| Agent | Environment | How it runs |
+|---|---|---|
+| **Cursor IDE** | User's local machine, Cursor editor | Interactive — user is in the IDE |
+| **Super Agent** | Slack bot, Claude Code SDK | Async — user messages from Slack/phone |
+
+Both agents use this file as their instruction set. Git is the sync layer.
 
 ## Critical Rules
 
@@ -17,6 +23,53 @@ The user communicates from their phone — keep responses concise and actionable
    session accomplished, decisions made, and test results.
 6. **Update HANDOFF.md before finishing** — summarize what you did, current state,
    and next steps so the next session can pick up seamlessly.
+
+## Multi-Agent Handoff Protocol
+
+The user switches between Cursor IDE and the Super Agent (Slack). Both agents
+must read/write HANDOFF.md so the other can continue seamlessly.
+
+### When the user says "handoff" (or "switching to super agent" / "switching to cursor")
+
+1. Stop current work at a clean point.
+2. Commit all changes (including project docs).
+3. Write HANDOFF.md with the format below.
+4. Push to the feature branch.
+5. Confirm: "Handoff ready on `feat/branch-name`. You can continue in [target agent]."
+
+### HANDOFF.md Format
+
+```markdown
+# Handoff
+
+- **Date**: YYYY-MM-DD HH:MM
+- **From**: cursor-ide | super-agent
+- **Branch**: feat/branch-name
+- **Status**: in-progress | blocked | ready-for-review
+
+## What I did
+[2-5 bullet points]
+
+## Current state
+[What works, what's partially done, what's broken]
+
+## Next steps
+[Prioritized list of what to do next]
+
+## Watch out
+[Gotchas, known issues, env vars needed, anything the next agent should know]
+```
+
+### Automatic pickup (no explicit handoff)
+
+Even without an explicit "handoff" command, both agents should:
+1. Pull latest changes before starting work (`git pull --rebase --autostash`).
+2. Read HANDOFF.md, plan.md, memory.md, devlog.md.
+3. Check `git log --oneline -5` to see what the other agent did.
+4. Continue from where things left off — do NOT redo completed work.
+
+The Super Agent does this automatically. In Cursor IDE, do a `git pull` if you
+suspect the Super Agent pushed changes.
 
 ## Session Continuity
 
@@ -164,8 +217,9 @@ Before finishing each session:
 
 ## Communication Style
 
-- User reads in Slack — keep it SHORT.
-- One question at a time when clarifying.
 - Be direct. No filler, no hedging.
 - If something won't work, say so.
 - Push back on bad ideas.
+- One question at a time when clarifying.
+- **Super Agent (Slack)**: user reads on phone — keep it SHORT.
+- **Cursor IDE**: user is at their desk — more detail is fine, but stay focused.
