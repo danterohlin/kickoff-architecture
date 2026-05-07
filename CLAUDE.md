@@ -181,11 +181,24 @@ A schema change without a migration is a guaranteed runtime crash.
 ```markdown
 # Memory
 
-## Stack
-[Actual stack chosen]
+## Defaults
+- Framework: Next.js 15 (App Router)
+- Styling: Tailwind CSS
+- Components: shadcn/ui
+- Theme: dark, zinc palette
+- ORM: Drizzle
+- Database: Turso (SQLite)
+- Auth: NextAuth v5 + GitHub OAuth
+- Hosting: Vercel
+- Package manager: pnpm
+
+## Tests
+- E2E: Playwright (smoke, auth flow, project CRUD)
+- Unit: Vitest (utils, API routes)
+- CI: GitHub Actions on push
 
 ## Design
-[Design decisions]
+[Design decisions — layout, colors, typography, component patterns]
 
 ## Env Vars
 | Variable | Purpose |
@@ -194,6 +207,10 @@ A schema change without a migration is a guaranteed runtime crash.
 ## Decisions Log
 [Dated entries for architectural choices]
 ```
+
+The `## Defaults` and `## Tests` sections are parsed by the dashboard sync
+pipeline. Use the `key: value` list format so the parser can extract them.
+Update these sections whenever the stack or test setup changes.
 
 ## devlog.md Format
 
