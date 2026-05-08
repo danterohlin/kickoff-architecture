@@ -99,7 +99,7 @@ When you receive the user's first message describing what to build:
 
 | Layer | Default |
 |---|---|
-| Framework | Next.js 15 (App Router) |
+| Framework | Next.js 15.3.x (App Router) — pin to stable, avoid @latest |
 | Styling | Tailwind CSS |
 | Components | shadcn/ui |
 | Package manager | pnpm |
@@ -111,8 +111,10 @@ When you receive the user's first message describing what to build:
 
 ## Bootstrap Commands
 
+Pin to a stable Next.js version to avoid CVEs in bleeding-edge releases.
+
 ```bash
-pnpm create next-app@latest . --ts --tailwind --eslint --app --src-dir --import-alias "@/*"
+pnpm create next-app@15.3.3 . --ts --tailwind --eslint --app --src-dir --import-alias "@/*"
 pnpx shadcn@latest init
 pnpm add -D @playwright/test vitest @vitejs/plugin-react @testing-library/react
 npx playwright install
