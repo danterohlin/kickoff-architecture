@@ -167,8 +167,10 @@ A schema change without a migration is a guaranteed runtime crash.
    radius, and color palette are specified there. Do not deviate.
 4. Use shadcn/ui components. Apply the theme from memory.md (not zinc unless
    that's what's specified).
-5. Components should be in separate files (one responsibility per component).
-6. Use TypeScript strictly — proper types, no `any`.
+5. **No box-shadow** — do not use `box-shadow` or `shadow-*` utilities by default.
+   Use borders (`border`, `ring`) for elevation and separation instead.
+6. Components should be in separate files (one responsibility per component).
+7. Use TypeScript strictly — proper types, no `any`.
 
 ## plan.md Format
 
