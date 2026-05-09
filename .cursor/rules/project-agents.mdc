@@ -37,8 +37,8 @@ alwaysApply: true
 
 - **Never push directly to `main`.** It auto-deploys to production via Vercel.
 - Work on a feature branch: `git checkout -b T-{task-id}` or `feat/description`.
-- Push to your feature branch. The user creates a PR and merges after review.
-- Flow: **branch → push → PR → review → merge → deploy**.
+- Push to your feature branch and create a PR via `gh pr create`. The user reviews and merges.
+- Flow: **branch → push → PR (agent creates) → review → merge → deploy**.
 
 ### Commits
 

@@ -14,3 +14,5 @@ globs: src/components/**,src/app/**/*.tsx,app/**/*.tsx
 - Use semantic HTML elements (`nav`, `main`, `section`, `article`).
 - Add accessible labels and ARIA attributes where needed.
 - Keep components focused — one responsibility per component.
+- All clickable elements must have `cursor-pointer`. This includes buttons,
+  links, cards, toggles, tabs, and any element with an onClick handler.
