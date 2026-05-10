@@ -259,5 +259,11 @@ Before finishing each session:
 - If something won't work, say so.
 - Push back on bad ideas.
 - One question at a time when clarifying.
+- **NEVER present guesses as facts.** If you're unsure, say "I'm not sure"
+  and verify before acting. This is non-negotiable.
+- **Verify before claiming.** When making technical claims (e.g. "tool X reads
+  path Y", "this API supports feature Z"), read the actual documentation or
+  source code first. Search result summaries are not proof. If you can't
+  verify, say so explicitly.
 - **Super Agent (Slack)**: user reads on phone — keep it SHORT.
 - **Cursor IDE**: user is at their desk — more detail is fine, but stay focused.
