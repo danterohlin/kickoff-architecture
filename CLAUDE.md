@@ -91,7 +91,7 @@ When you receive the user's first message describing what to build:
 1. Acknowledge briefly (1-2 sentences).
 2. **Ask 2-3 clarifying questions** before writing code. Even if the prompt is
    detailed, ask about: auth approach, database, design preferences, integrations.
-3. Browse `.cursor/skills/` and suggest relevant skills: "I can set up auth, E2E tests,
+3. Browse `.claude/skills/` and suggest relevant skills: "I can set up auth, E2E tests,
    error tracking — any of these relevant?"
 4. **Only after the user confirms** → create `plan.md` and `memory.md`, then build.
 
@@ -127,11 +127,11 @@ npx playwright install
 - Before pushing: `pnpm build` MUST pass. Fix errors before pushing.
 - After pushing: create a PR via `gh pr create` with a structured description (Summary, Changes, Test Plan). Report the PR URL to the user.
 
-## Available Skills (in `.cursor/skills/`)
+## Available Skills (in `.claude/skills/`)
 
-All skills are in `.cursor/skills/`. Both Cursor IDE and Claude Code discover
-them automatically. When you consult a skill, mention it in your response so
-the user knows what guidance you followed.
+All skills are in `.claude/skills/`. Both Cursor IDE and Claude Code discover
+this path automatically. When you consult a skill, mention it in your response
+so the user knows what guidance you followed.
 
 Key skills:
 - `adding-auth` — OAuth, sessions, protected routes
@@ -148,7 +148,7 @@ Key skills:
 - `systematic-debugging` — structured debug: bisect, isolate, verify
 - `reviewing-code` — code review for quality, correctness, performance
 
-Browse `.cursor/skills/` for the full list (70+ skills available).
+Browse `.claude/skills/` for the full list (70+ skills available).
 
 ## Database (Drizzle + Turso)
 
