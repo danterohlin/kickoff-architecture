@@ -15,14 +15,20 @@ Both agents use this file as their instruction set. Git is the sync layer.
    directly into the repo root (this IS the project).
 2. **Always use feature branches** — NEVER push to `main`. Create a branch like
    `feat/initial-setup` or `feat/{feature-name}` before making changes.
-3. **Tests from day one** — set up Playwright + Vitest in Phase 0. Every feature
+3. **Create a PR after each phase** — When you finish a phase (or a significant
+   batch of tasks), commit, push to your feature branch, and run
+   `gh pr create --title "..." --body "..."`. Report the PR URL in your response.
+   Do NOT continue to the next phase without creating the PR first.
+4. **Tests from day one** — set up Playwright + Vitest in Phase 0. Every feature
    needs at least one E2E test.
-4. **Create plan.md and memory.md** — these are your persistent state. Other
+5. **Create plan.md and memory.md** — these are your persistent state. Other
    sessions (and the user) rely on them.
-5. **Append to devlog.md before finishing** — a running journal of what each
+6. **Append to devlog.md before finishing** — a running journal of what each
    session accomplished, decisions made, and test results.
-6. **Update HANDOFF.md before finishing** — summarize what you did, current state,
+7. **Update HANDOFF.md before finishing** — summarize what you did, current state,
    and next steps so the next session can pick up seamlessly.
+8. **No emojis** — NEVER use emojis, checkmarks, or decorative unicode characters
+   in responses or commit messages. Plain text only.
 
 ## Multi-Agent Handoff Protocol
 
@@ -93,7 +99,7 @@ When you receive the user's first message describing what to build:
 
 | Layer | Default |
 |---|---|
-| Framework | Next.js 15 (App Router) |
+| Framework | Next.js 15.5.x (App Router) — pin to stable, avoid @latest |
 | Styling | Tailwind CSS |
 | Components | shadcn/ui |
 | Package manager | pnpm |
@@ -105,8 +111,10 @@ When you receive the user's first message describing what to build:
 
 ## Bootstrap Commands
 
+Pin to a stable Next.js version to avoid CVEs in bleeding-edge releases.
+
 ```bash
-pnpm create next-app@latest . --ts --tailwind --eslint --app --src-dir --import-alias "@/*"
+pnpm create next-app@15.5.18 . --ts --tailwind --eslint --app --src-dir --import-alias "@/*"
 pnpx shadcn@latest init
 pnpm add -D @playwright/test vitest @vitejs/plugin-react @testing-library/react
 npx playwright install
@@ -117,7 +125,7 @@ npx playwright install
 - Branch naming: `feat/{description}` or `T-{task-id}`
 - Commit format: `T-{id}: {description}` or `feat: {description}`
 - Before pushing: `pnpm build` MUST pass. Fix errors before pushing.
-- After pushing: report the branch name to the user.
+- After pushing: create a PR via `gh pr create` with a structured description (Summary, Changes, Test Plan). Report the PR URL to the user.
 
 ## Available Skills (in `handy-skills/`)
 
@@ -155,9 +163,14 @@ A schema change without a migration is a guaranteed runtime crash.
 
 1. Follow the plan. Update `plan.md` as you complete tasks.
 2. Test your work — run builds, run tests.
-3. Use shadcn/ui components. Dark theme with zinc palette unless specified.
-4. Components should be in separate files (one responsibility per component).
-5. Use TypeScript strictly — proper types, no `any`.
+3. **Follow memory.md for all design defaults** — theme, font, mode, border
+   radius, and color palette are specified there. Do not deviate.
+4. Use shadcn/ui components. Apply the theme from memory.md (not zinc unless
+   that's what's specified).
+5. **No box-shadow** — do not use `box-shadow` or `shadow-*` utilities by default.
+   Use borders (`border`, `ring`) for elevation and separation instead.
+6. Components should be in separate files (one responsibility per component).
+7. Use TypeScript strictly — proper types, no `any`.
 
 ## plan.md Format
 

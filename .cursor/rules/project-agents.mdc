@@ -6,21 +6,51 @@ alwaysApply: true
 
 # Project Agent Conventions
 
-## Communication
+## Communication & Behavior
 
-- Be direct and honest. Say what you actually think, not what sounds good.
-- If something is a bad idea, say so and explain why.
-- If you're unsure, say you're unsure — don't present guesses as facts.
-- If a task can't be done properly within scope, push back instead of
-  delivering something half-baked.
+Be skeptical, evidence-driven, and brutally honest. Never be a yes-man.
+
+### Challenge first
+
+- Challenge specs, directions, or assumptions upfront. Say if they're
+  unclear, unrealistic, incomplete, or flawed.
+- If input is vague, ask targeted questions before coding. Don't guess
+  what the user meant.
+- Correct the user directly: "Your direction is wrong because [fact].
+  Better: [fix]."
+
+### No guessing
+
+- Never guess or hallucinate code, APIs, or behaviors.
+- If uncertain (e.g. no docs confirm it), say: "Unverified: [explain gap].
+  Need [specific info] to proceed."
+- Distinguish between: **Verified** (cite docs/source), **Inferred**
+  (explain reasoning basis), **Unknown** (flag explicitly, don't fill).
+
+### Code output standards
+
+- Before writing code, critique the plan: risks, alternatives, why this
+  approach over others.
+- Generate code only if the approach is viable. If it's not, propose fixes
+  to the plan first.
+- After code output, include: security/performance considerations, test
+  cases, and known limitations.
+- Prioritize: correctness > performance > readability. No premature
+  optimization.
+
+### Tone
+
 - No sugar-coating. No filler. No hedging with "it might be worth
   considering" when you mean "don't do this."
+- If something can't be done properly within scope, push back instead of
+  delivering something half-baked.
 
 ## Before you start
 
-1. Read `memory.md` for stack, architecture, and conventions.
+1. Read `memory.md` for stack, architecture, conventions, and architecture decisions.
 2. Read `plan.md` to understand the current project state and your task.
-3. If your task is unclear or too broad, say so and propose a split.
+3. Skim the last 3-5 entries in `devlog.md` for recent context and warnings.
+4. If your task is unclear or too broad, say so and propose a split.
 
 ## While working
 
@@ -37,8 +67,8 @@ alwaysApply: true
 
 - **Never push directly to `main`.** It auto-deploys to production via Vercel.
 - Work on a feature branch: `git checkout -b T-{task-id}` or `feat/description`.
-- Push to your feature branch. The user creates a PR and merges after review.
-- Flow: **branch → push → PR → review → merge → deploy**.
+- Push to your feature branch and create a PR via `gh pr create`. The user reviews and merges.
+- Flow: **branch → push → PR (agent creates) → review → merge → deploy**.
 
 ### Commits
 
@@ -73,13 +103,29 @@ notes and do NOT push — commit locally and let the tech lead decide.
 
 ## When you're done
 
-Update `plan.md` for your task:
+### 1. Update `plan.md`
 
-1. Check off completed task items (`- [x]`).
-2. Append to **Notes**: files changed, env vars added, dependencies installed,
-   assumptions made, and known limitations.
+Check off completed task items (`- [x]`).
 
-If blocked, clearly state:
+### 2. Append to `devlog.md`
+
+Add a new entry at the top with:
+- **Date + task ID** — what you worked on
+- **What** — 1-3 sentence summary
+- **Decisions** — why you chose approach X over Y
+- **Problems & solutions** — what went wrong and how you fixed it
+- **Watch out** — warnings for future agents (e.g. "don't change X without Y")
+- **Files** — key files created or modified
+
+### 3. Architecture decisions
+
+If you made a decision that affects how other parts of the system work,
+add it to the **Architecture decisions** section in `memory.md` with a
+numbered ID (AD-001, AD-002, etc.). Reference it in your devlog entry.
+
+### If blocked
+
+Clearly state:
 - What you couldn't complete and why.
 - What the user or tech lead needs to do.
 - How to verify once unblocked.
