@@ -91,7 +91,7 @@ When you receive the user's first message describing what to build:
 1. Acknowledge briefly (1-2 sentences).
 2. **Ask 2-3 clarifying questions** before writing code. Even if the prompt is
    detailed, ask about: auth approach, database, design preferences, integrations.
-3. Read `handy-skills/` and suggest relevant skills: "I can set up auth, E2E tests,
+3. Browse `.claude/skills/` and suggest relevant skills: "I can set up auth, E2E tests,
    error tracking — any of these relevant?"
 4. **Only after the user confirms** → create `plan.md` and `memory.md`, then build.
 
@@ -127,20 +127,28 @@ npx playwright install
 - Before pushing: `pnpm build` MUST pass. Fix errors before pushing.
 - After pushing: create a PR via `gh pr create` with a structured description (Summary, Changes, Test Plan). Report the PR URL to the user.
 
-## Available Skills (in `handy-skills/`)
+## Available Skills (in `.claude/skills/`)
 
-When you consult a skill file, mention it in your response so the user knows
-what guidance you followed. The user can also ask you to use specific skills.
+All skills are in `.claude/skills/`. Both Cursor IDE and Claude Code discover
+this path automatically. When you consult a skill, mention it in your response
+so the user knows what guidance you followed.
 
-Read these when relevant to the project:
+Key skills:
 - `adding-auth` — OAuth, sessions, protected routes
 - `adding-e2e-tests` — Playwright setup with page objects
 - `writing-tests` — unit/integration test generation
+- `frontend-design` — distinctive UI that avoids generic AI look
+- `using-ui-stack` — design system enforcement
 - `database-design` — schema design patterns
+- `creating-pr` — conventional PR creation
 - `adding-docker` — containerization
 - `adding-stripe` — payments
 - `adding-error-tracking` — Sentry setup
 - `setting-up-ci` — GitHub Actions CI/CD
+- `systematic-debugging` — structured debug: bisect, isolate, verify
+- `reviewing-code` — code review for quality, correctness, performance
+
+Browse `.claude/skills/` for the full list (70+ skills available).
 
 ## Database (Drizzle + Turso)
 
@@ -251,5 +259,11 @@ Before finishing each session:
 - If something won't work, say so.
 - Push back on bad ideas.
 - One question at a time when clarifying.
+- **NEVER present guesses as facts.** If you're unsure, say "I'm not sure"
+  and verify before acting. This is non-negotiable.
+- **Verify before claiming.** When making technical claims (e.g. "tool X reads
+  path Y", "this API supports feature Z"), read the actual documentation or
+  source code first. Search result summaries are not proof. If you can't
+  verify, say so explicitly.
 - **Super Agent (Slack)**: user reads on phone — keep it SHORT.
 - **Cursor IDE**: user is at their desk — more detail is fine, but stay focused.
